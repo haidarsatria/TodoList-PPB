@@ -1,0 +1,14 @@
+^\s*//.*$ Application-level settings for the Runner target.
+^\s*//.*$
+^\s*//.*$ This may be replaced with something auto-generated from metadata (e.g., pubspec.yaml) in the
+^\s*//.*$ future. If not, the values below would default to using the project name when this becomes a
+^\s*//.*$ 'flutter create' template.
+
+^\s*//.*$ The application's name. By default this is also the title of the Flutter window.
+PRODUCT_NAME = rest_api_demo
+
+^\s*//.*$ The application's bundle identifier
+PRODUCT_BUNDLE_IDENTIFIER = com.example.restApiDemo
+
+^\s*//.*$ The copyright displayed in application information
+PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
