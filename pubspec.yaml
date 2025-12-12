@@ -1,0 +1,39 @@
+  name: rest_api_demo
+  description: "A new Flutter project."
+  publish_to: 'none'
+  version: 0.1.0
+
+  environment:
+    sdk: ^3.7.0
+
+  dependencies:
+    flutter:
+      sdk: flutter
+    
+    # http request
+    http: ^1.1.0
+    # state management
+    provider: ^6.0.5
+    # local storage
+    shared_preferences: ^2.2.0
+    # date formatting
+    intl: ^0.18.1
+    sqflite: ^2.3.0
+    path: ^1.8.0
+
+    # testing 
+    
+    
+
+  dev_dependencies:
+    flutter_test:
+      sdk: flutter
+    flutter_lints: ^5.0.0
+    mocktail: ^1.0.4
+    build_runner: ^2.4.8
+    integration_test:
+      sdk: flutter
+    sqflite_common_ffi: ^2.3.0
+
+  flutter:
+    uses-material-design: true
