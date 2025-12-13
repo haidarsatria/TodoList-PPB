@@ -6,9 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/task.dart';
 
 class TaskApiService {
-  static const String _baseUrl = 'https://msfwjvmqfbjcaatrwzma.supabase.co';
-  static const String _apiKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zZndqdm1xZmJqY2FhdHJ3em1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTA5NTcsImV4cCI6MjA4MTAyNjk1N30.CvDSmQ5kBE9mYOEbve6NZe8SBcUytwDpOg0clKJjm0I';
+  static const String _baseUrl = 'API URL';
+  static const String _apiKey = 'API KEY';
 
   String? _accessToken;
 
