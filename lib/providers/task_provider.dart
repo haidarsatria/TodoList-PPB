@@ -12,14 +12,14 @@ class TaskProvider extends ChangeNotifier {
 
   bool _isAuthenticated = false;
   bool _isAuthLoading = true;
-  bool _isTaskLoading = false;
   String? _email;
   String? _userId;
   String? _errorMessage;
 
-  List<Task> _tasks = [];
+  bool _isTaskLoading = false;
+  bool _isSyncing = false;
 
-  final bool _isSyncing = false;
+  List<Task> _tasks = [];
 
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isAuthLoading;
@@ -122,8 +122,6 @@ class TaskProvider extends ChangeNotifier {
       _tasks = await _localDb.getAllTasks();
       notifyListeners();
 
-      final remote = await _apiService.getTasks();
-
       final unsyncedLocal = await _localDb.getUnsyncedTasks();
       for (final t in unsyncedLocal) {
         try {
@@ -139,24 +137,41 @@ class TaskProvider extends ChangeNotifier {
         } catch (_) {}
       }
 
-      final mergedLocal = await _localDb.getAllTasks();
+      _isSyncing = true;
+      notifyListeners();
 
-      final Map<int?, Task> map = {};
+      final remoteTasks = await _apiService.getTasks();
+      final currentLocalTasks = await _localDb.getAllTasks();
 
-      for (final r in remote) {
-        map[r.serverId] = r.copyWith(userId: _userId, isSynced: true);
-      }
-      for (final l in mergedLocal) {
-        if (l.serverId == null || !map.containsKey(l.serverId)) {
-          map[l.serverId] = l;
+      for (final remoteTask in remoteTasks) {
+        Task? matchLocal;
+        try {
+          matchLocal = currentLocalTasks.firstWhere(
+            (l) => l.serverId == remoteTask.serverId,
+          );
+        } catch (_) {
+          matchLocal = null;
+        }
+
+        if (matchLocal != null) {
+          final taskToUpdate = remoteTask.copyWith(
+            localId: matchLocal.localId,
+            userId: _userId,
+            isSynced: true,
+          );
+          await _localDb.updateTask(taskToUpdate);
+        } else {
+          final newTask = remoteTask.copyWith(userId: _userId, isSynced: true);
+          await _localDb.insertTask(newTask);
         }
       }
 
-      _tasks =
-          map.values.toList()
-            ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
-    } catch (e) {}
+      _tasks = await _localDb.getAllTasks();
+    } catch (e) {
+      _errorMessage = 'Gagal sinkronisasi (Mode Offline)';
+    }
 
+    _isSyncing = false;
     _isTaskLoading = false;
     notifyListeners();
   }
@@ -185,7 +200,6 @@ class TaskProvider extends ChangeNotifier {
     }
 
     final insertedTask = localTask.copyWith(localId: localId);
-
     _tasks.insert(0, insertedTask);
     notifyListeners();
 
@@ -247,7 +261,6 @@ class TaskProvider extends ChangeNotifier {
 
       if (success) {
         final syncedTask = updatedLocal.copyWith(isSynced: true);
-
         await _localDb.updateTask(syncedTask);
 
         final idx = _tasks.indexWhere((t) => t.localId == syncedTask.localId);
@@ -270,7 +283,9 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteTask(Task task) async {
-    if (task.localId == null) return false;
+    if (task.localId == null) {
+      return false;
+    }
 
     await _localDb.deleteTask(task.localId!);
     _tasks.removeWhere((t) => t.localId == task.localId);
